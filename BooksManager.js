@@ -30,7 +30,7 @@ class BooksManager {
     }
 
     read(query) {
-        this.config.push(`/queries/${query}/read`, false)
+        this.config.push(`/queries/${query}/read`, true)
     }
 
     async *update() {
