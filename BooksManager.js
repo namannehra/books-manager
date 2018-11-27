@@ -10,7 +10,10 @@ class BooksManager {
     }
 
     get domain() {
-        return this.config.getData('/domain')
+        if (this.config.exists('/domain')) {
+            return this.config.getData('/domain')
+        }
+        return ''
     }
 
     set domain(domain) {
@@ -18,7 +21,10 @@ class BooksManager {
     }
 
     get queries() {
-        return this.config.getData('/queries')
+        if (this.config.exists('/queries')) {
+            return this.config.getData('/queries')
+        }
+        return {}
     }
 
     add(query) {
