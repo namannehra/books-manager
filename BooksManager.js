@@ -47,10 +47,11 @@ class BooksManager {
                 })
             })
             const latestBook = response.result[0]
+            console.log(latestBook)
             if (latestBook && (!lastBook || latestBook.id !== lastBook.id)) {
                 this.config.push(`/queries/${query}`, {
                     id: latestBook.id,
-                    title: latestBook.title.pretty,
+                    title: latestBook.title.english || latestBook.title.pretty,
                     read: false,
                 })
             }
