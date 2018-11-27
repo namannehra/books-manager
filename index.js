@@ -51,7 +51,8 @@ if (command === 'update') {
             console.log(`${number.toString().padStart(2)}. ${query}`)
             if (lastBook) {
                 console.log(
-                    `${lastBook.title} - ${lastBook.id}` + '\n' +
+                    lastBook.title + '\n' +
+                    `https://${booksManager.domain}/g/${lastBook.id}/` + '\n' +
                     (lastBook.read ? 'READ' : 'UNREAD')
                 )
             } else {
