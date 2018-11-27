@@ -45,7 +45,7 @@ $ node index.js remove 1
 Check for updates.
 
 ### `read`
-Mark the last book of search queries as read.
+Mark the last books of search queries as read.
 ```
 $ node index.js read 1 2
 ```
