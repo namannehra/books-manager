@@ -8,8 +8,6 @@ const booksManager = new BooksManager(__dirname + '/config')
 const command = process.argv[2]
 let validCommand = false
 
-const getQuery = number => Object.keys(booksManager.queries)[Number(number) - 1]
-
 if (command === 'domain') {
     validCommand = true
     const domain = process.argv[3]
@@ -36,7 +34,7 @@ if (command === 'list') {
 }
 
 if (command === 'remove') {
-    const query = getQuery(process.argv[3])
+    const query = Object.keys(booksManager.queries)[Number(process.argv[3]) - 1]
     if (query) {
         validCommand = true
         booksManager.remove(query)
@@ -63,11 +61,17 @@ if (command === 'update') {
 }
 
 if (command === 'read') {
-    validCommand = true
-    for (const number of process.argv.slice(3)) {
-        const query = getQuery(number)
-        if (query) {
-            booksManager.read(query)
+    const toMark = process.argv.slice(3)
+    if (toMark.length) {
+        validCommand = true
+        const queryEntries = Object.entries(booksManager.queries)
+        for (const number of toMark) {
+            const queryEntry = queryEntries[Number(number - 1)]
+            if (queryEntry && queryEntry[1]) {
+                booksManager.read(queryEntry[0])
+            } else {
+                console.log(number + ' ingored')
+            }
         }
     }
 }
