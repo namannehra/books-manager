@@ -50,7 +50,7 @@ if (command === 'update') {
             const link = url.parse(`https://${booksManager.domain}/search/?q=${query}`).href
             console.log(`${number.toString().padStart(2)}. ${query} - ${link}`)
             if (lastBook) {
-                console.log((lastBook.read ? '' : 'UNREAD - ') + lastBook.title)
+                console.log(`${lastBook.read ? 'READ' : 'UNREAD'} - ${lastBook.title}`)
             } else {
                 console.log('No results')
             }
