@@ -2,7 +2,7 @@
 
 const BooksManager = require('./BooksManager')
 
-const booksManager = new BooksManager('config')
+const booksManager = new BooksManager(__dirname + '/config')
 
 const command = process.argv[2]
 let validCommand = false
@@ -67,7 +67,7 @@ if (command === 'read') {
     const number = Number(process.argv[3])
     if (number) {
         validCommand = true
-        booksManager.mark(getQuery(number))
+        booksManager.read(getQuery(number))
     }
 }
 
