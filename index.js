@@ -65,10 +65,12 @@ if (command === 'update') {
 }
 
 if (command === 'read') {
-    const number = Number(process.argv[3])
-    if (number) {
-        validCommand = true
-        booksManager.read(getQuery(number))
+    validCommand = true
+    for (const number of process.argv.slice(3)) {
+        const query = getQuery(number)
+        if (query) {
+            booksManager.read(query)
+        }
     }
 }
 
