@@ -48,15 +48,13 @@ if (command === 'update') {
         console.log()
         let number = 1
         for await (const [query, lastBook] of booksManager.update()) {
-            console.log(`${number.toString().padStart(2)}. ${query}`)
+            console.log(
+                `${number.toString().padStart(2)}. ${query} - https://${booksManager.domain}/search/?q=${query}`
+            )
             if (lastBook) {
-                console.log(
-                    lastBook.title + '\n' +
-                    `https://${booksManager.domain}/g/${lastBook.id}/` + '\n' +
-                    (lastBook.read ? 'READ' : 'UNREAD')
-                )
+                console.log((lastBook.read ? '' : 'UNREAD - ') + lastBook.title)
             } else {
-                console.log('No result')
+                console.log('No results')
             }
             console.log()
             number++
