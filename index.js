@@ -1,5 +1,6 @@
 'use strict'
 
+const url = require('url')
 const BooksManager = require('./BooksManager')
 
 const booksManager = new BooksManager(__dirname + '/config')
@@ -48,9 +49,8 @@ if (command === 'update') {
         console.log()
         let number = 1
         for await (const [query, lastBook] of booksManager.update()) {
-            console.log(
-                `${number.toString().padStart(2)}. ${query} - https://${booksManager.domain}/search/?q=${query}`
-            )
+            const link = url.parse(`https://${booksManager.domain}/search/?q=${query}`).href
+            console.log(`${number.toString().padStart(2)}. ${query} - ${link}`)
             if (lastBook) {
                 console.log((lastBook.read ? '' : 'UNREAD - ') + lastBook.title)
             } else {
