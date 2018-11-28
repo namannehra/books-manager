@@ -8,6 +8,23 @@ const booksManager = new BooksManager(__dirname + '/config')
 const command = process.argv[2]
 let validCommand = false
 
+const getQueries = () => Object.keys(booksManager.queries)
+const getQuery = number => getQueries()[Number(number) - 1]
+const getQueryNumber = query => getQueries().indexOf(query) + 1
+const getBook = query => booksManager.queries[query]
+
+const printQuery = query => {
+    const link = url.parse(`https://${booksManager.domain}/search/?q=${query}`).href
+    console.log(`${getQueryNumber(query).toString().padStart(2)}. ${query} - ${link}`)
+    const book = getBook(query)
+    if (book) {
+        console.log(`${book.read ? 'READ' : 'UNREAD'} - ${book.title}`)
+    } else {
+        console.log('No results')
+    }
+    console.log()
+}
+
 if (command === 'domain') {
     validCommand = true
     const domain = process.argv[3]
@@ -22,57 +39,62 @@ if (command === 'add') {
     const query = process.argv[3]
     if (query) {
         validCommand = true
-        booksManager.add(query)
+        if (getBook(query) === undefined) {
+            console.log()
+            booksManager.add(query)
+            booksManager.update(query).then(() => {
+                printQuery(query)
+            })
+        } else {
+            console.error('Query already present')
+        }
     }
 }
 
 if (command === 'list') {
     validCommand = true
-    Object.keys(booksManager.queries).forEach((query, index) => {
-        console.log(`${(index + 1).toString().padStart(2)}. ${query}`)
-    })
+    console.log()
+    for (const query of getQueries()) {
+        printQuery(query)
+    }
 }
 
 if (command === 'remove') {
-    const query = Object.keys(booksManager.queries)[Number(process.argv[3]) - 1]
-    if (query) {
+    const number = process.argv[3]
+    if (number) {
         validCommand = true
-        booksManager.remove(query)
+        const query = getQuery(number)
+        if (getBook(query) === undefined) {
+            console.error('No query at number ' + number)
+        } else {
+            booksManager.remove(query)
+        }
     }
 }
 
 if (command === 'update') {
     validCommand = true
+    const numbers = process.argv.slice(3).map(number => Number(number))
+    const queriesToUpdate = numbers.length ?
+        getQueries().filter(query => numbers.includes(getQueryNumber(query))) :
+        getQueries()
+    console.log()
     ;(async () => {
-        console.log()
-        let number = 1
-        for await (const [query, lastBook] of booksManager.update()) {
-            const link = url.parse(`https://${booksManager.domain}/search/?q=${query}`).href
-            console.log(`${number.toString().padStart(2)}. ${query} - ${link}`)
-            if (lastBook) {
-                console.log(`${lastBook.read ? 'READ' : 'UNREAD'} - ${lastBook.title}`)
-            } else {
-                console.log('No results')
-            }
-            console.log()
-            number++
+        for (const query of queriesToUpdate) {
+            await booksManager.update(query)
+            printQuery(query)
         }
     })()
 }
 
 if (command === 'read') {
-    const toMark = process.argv.slice(3)
-    if (toMark.length) {
-        validCommand = true
-        const queryEntries = Object.entries(booksManager.queries)
-        for (const number of toMark) {
-            const queryEntry = queryEntries[Number(number - 1)]
-            if (queryEntry && queryEntry[1]) {
-                booksManager.read(queryEntry[0])
-            } else {
-                console.log(number + ' ingored')
-            }
-        }
+    validCommand = true
+    const numbers = process.argv.slice(3).map(number => Number(number))
+    const queriesToMark = numbers.length ?
+        getQueries().filter(query => numbers.includes(getQueryNumber(query))) :
+        getQueries()
+    for (const query of queriesToMark) {
+        booksManager.read(query)
     }
 }
 

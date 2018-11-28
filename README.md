@@ -31,8 +31,6 @@ $ node index.js add 'tag:"story arc" parody:"street fighter"'
 List added search queries.
 ```
 $ node index.js list
- 1. tag:glasses
- 2. tag:"story arc" parody:"street fighter"
 ```
 
 ### `remove`
@@ -42,12 +40,18 @@ $ node index.js remove 1
 ```
 
 ### `update`
-Check for updates.
+Check for updates. If used without query numbers then all queries are updated.
+```
+$ node index.js update 1 2 3
+$ node index.js update
+```
 
 ### `read`
-Mark the last books of search queries as read.
+Mark the last books of search queries as read. If used without query numbers
+then last books of all queries are marked read.
 ```
-$ node index.js read 1 2
+$ node index.js read 1 2 3
+$ node index.js read
 ```
 
 ## Config file

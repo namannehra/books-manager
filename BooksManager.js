@@ -35,33 +35,32 @@ class BooksManager {
         this.config.delete(`/queries/${query}`)
     }
 
-    read(query) {
-        this.config.push(`/queries/${query}/read`, true)
-    }
-
-    async *update() {
-        for (const [query, lastBook] of Object.entries(this.queries)) {
-            const response = await new Promise(resolve => {
-                https.get(`https://${this.domain}/api/galleries/search?query=${query}`, response => {
-                    let data = ''
-                    response.on('data', chunk => {
-                        data += chunk
-                    })
-                    response.on('end', () => {
-                        resolve(JSON.parse(data))
-                    })
+    update(query) {
+        return new Promise(resolve => {
+            https.get(`https://${this.domain}/api/galleries/search?query=${query}`, response => {
+                let data = ''
+                response.on('data', chunk => {
+                    data += chunk
+                })
+                response.on('end', () => {
+                    const latestBook = JSON.parse(data).result[0]
+                    const lastBook = this.queries[query]
+                    if (latestBook && (!lastBook || latestBook.id !== lastBook.id)) {
+                        this.config.push(`/queries/${query}`, {
+                            id: latestBook.id,
+                            /* Don't know if english title is always present */
+                            title: latestBook.title.english || latestBook.title.pretty,
+                            read: false,
+                        })
+                    }
+                    resolve(this.config.getData(`/queries/${query}`))
                 })
             })
-            const latestBook = response.result[0]
-            if (latestBook && (!lastBook || latestBook.id !== lastBook.id)) {
-                this.config.push(`/queries/${query}`, {
-                    id: latestBook.id,
-                    title: latestBook.title.english || latestBook.title.pretty,
-                    read: false,
-                })
-            }
-            yield [query, this.config.getData(`/queries/${query}`)]
-        }
+        })
+    }
+
+    read(query) {
+        this.config.push(`/queries/${query}/read`, true)
     }
 
 }
