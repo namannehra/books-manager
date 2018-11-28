@@ -1,9 +1,11 @@
 'use strict'
 
+const os = require('os')
+const path = require('path')
 const url = require('url')
 const BooksManager = require('./BooksManager')
 
-const booksManager = new BooksManager(__dirname + '/config')
+const booksManager = new BooksManager(path.resolve(os.homedir(), 'books-manager'))
 
 const command = process.argv[2]
 let validCommand = false
