@@ -18,7 +18,6 @@ Get or set the domain of *books website*. Domain must be set before using the
 app for the first time.
 ```
 $ books-manager domain google.com
-
 $ books-manager domain
 google.com
 ```
