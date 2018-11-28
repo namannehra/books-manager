@@ -6,6 +6,11 @@ A Node app to check for new books based on search queries
 yarn global add https://github.com/namannehra/books-manager
 ```
 
+## Update
+```
+yarn global upgrade books-manager
+```
+
 ## Commands
 
 ### `domain`
