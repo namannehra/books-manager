@@ -31,8 +31,8 @@ const printBook = query => {
 }
 
 const printQueryAndBook = query => {
-    printQuery()
-    printBook()
+    printQuery(query)
+    printBook(query)
     console.log()
 }
 
