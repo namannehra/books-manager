@@ -36,23 +36,21 @@ const printQueryAndBook = query => {
     console.log()
 }
 
-const handleUpdateError = error => {
+const handleUpdateError = (query, error) => {
+    printQuery(query)
     if (error.code === 'ENOTFOUND') {
         console.error('Incorrect domain or network error')
-        return
-    }
-    if (error.statusCode === 404) {
+    } else if (error.statusCode === 404) {
         console.error(error.message)
         console.error('Check domain')
-        return
-    }
-    if (['NoDomain', 'StatusCode', 'ContentType'].some(
+    } else if (['NoDomain', 'StatusCode', 'ContentType'].some(
         errorType => error instanceof BooksManager[errorType + 'Error']
     )) {
         console.error(error.message)
-        return
+    } else {
+        console.error(error)
     }
-    console.error(error)
+    console.log()
 }
 
 if (command === 'domain') {
@@ -69,14 +67,17 @@ if (command === 'add') {
     const query = process.argv[3]
     if (query) {
         validCommand = true
+        console.log()
         if (getBook(query) === undefined) {
             booksManager.add(query)
             booksManager.update(query).then(() => {
-                console.log()
                 printQueryAndBook(query)
-            }).catch(handleUpdateError)
+            }).catch(error => {
+                handleUpdateError(query, error)
+            })
         } else {
             console.error('Query already present')
+            console.log()
         }
     }
 }
@@ -108,16 +109,14 @@ if (command === 'update') {
     const queriesToUpdate = numbers.length ?
         getQueries().filter(query => numbers.includes(getQueryNumber(query))) :
         getQueries()
-    console.log()
     ;(async () => {
+        console.log()
         for (const query of queriesToUpdate) {
             try {
                 await booksManager.update(query)
                 printQueryAndBook(query)
             } catch (error) {
-                printQuery(query)
-                handleUpdateError(error)
-                console.log()
+                handleUpdateError(query, error)
             }
         }
     })()
