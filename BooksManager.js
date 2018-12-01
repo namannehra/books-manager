@@ -36,8 +36,22 @@ class BooksManager {
     }
 
     update(query) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
+            if (!this.domain) {
+                reject(new NoDomainError())
+                return
+            }
             https.get(`https://${this.domain}/api/galleries/search?query=${query}`, response => {
+                const {statusCode} = response
+                if (statusCode !== 200) {
+                    reject(new StatusCodeError(statusCode))
+                    return
+                }
+                const contentType = response.headers['content-type']
+                if (contentType !== 'application/json') {
+                    reject(new ContentTypeError(contentType))
+                    return
+                }
                 let data = ''
                 response.on('data', chunk => {
                     data += chunk
@@ -53,8 +67,10 @@ class BooksManager {
                             read: false,
                         })
                     }
-                    resolve(this.config.getData(`/queries/${query}`))
+                    resolve()
                 })
+            }).on('error', (error) => {
+                reject(error)
             })
         })
     }
@@ -64,5 +80,35 @@ class BooksManager {
     }
 
 }
+
+class NoDomainError extends Error {
+
+    constructor() {
+        super('No domain set')
+    }
+
+}
+
+class StatusCodeError extends Error {
+
+    constructor(statusCode) {
+        super('Wrong status code: ' + statusCode)
+        this.statusCode = statusCode
+    }
+
+}
+
+class ContentTypeError extends Error {
+
+    constructor(contentType) {
+        super('Wrong content type: ' + contentType)
+        this.contentType = contentType
+    }
+
+}
+
+BooksManager.NoDomainError = NoDomainError
+BooksManager.StatusCodeError = StatusCodeError
+BooksManager.ContentTypeError = ContentTypeError
 
 module.exports = BooksManager

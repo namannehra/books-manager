@@ -28,6 +28,14 @@ const printQuery = query => {
     console.log()
 }
 
+const handleUpdateError = error => {
+    if (error.code === 'ENOTFOUND') {
+        console.error('Incorrect domain or network error')
+    } else {
+        console.error(error.message)
+    }
+}
+
 if (command === 'domain') {
     validCommand = true
     const domain = process.argv[3]
@@ -43,11 +51,11 @@ if (command === 'add') {
     if (query) {
         validCommand = true
         if (getBook(query) === undefined) {
-            console.log()
             booksManager.add(query)
             booksManager.update(query).then(() => {
+                console.log()
                 printQuery(query)
-            })
+            }).catch(handleUpdateError)
         } else {
             console.error('Query already present')
         }
@@ -81,13 +89,12 @@ if (command === 'update') {
     const queriesToUpdate = numbers.length ?
         getQueries().filter(query => numbers.includes(getQueryNumber(query))) :
         getQueries()
-    console.log()
-    ;(async () => {
+    Promise.all(queriesToUpdate.map(query => booksManager.update(query))).then(() => {
+        console.log()
         for (const query of queriesToUpdate) {
-            await booksManager.update(query)
             printQuery(query)
         }
-    })()
+    }).catch(handleUpdateError)
 }
 
 if (command === 'read') {
