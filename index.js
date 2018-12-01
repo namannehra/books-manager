@@ -19,12 +19,20 @@ const getBook = query => booksManager.queries[query]
 const printQuery = query => {
     const link = url.parse(`https://${booksManager.domain}/search/?q=${query}`).href
     console.log(`${getQueryNumber(query).toString().padStart(2)}. ${query} - ${link}`)
+}
+
+const printBook = query => {
     const book = getBook(query)
     if (book) {
         console.log(`${book.read ? 'READ' : 'UNREAD'} - ${book.title}`)
     } else {
         console.log('No results')
     }
+}
+
+const printQueryAndBook = query => {
+    printQuery()
+    printBook()
     console.log()
 }
 
@@ -44,7 +52,7 @@ const handleUpdateError = error => {
         console.error(error.message)
         return
     }
-    throw error
+    console.error(error)
 }
 
 if (command === 'domain') {
@@ -65,7 +73,7 @@ if (command === 'add') {
             booksManager.add(query)
             booksManager.update(query).then(() => {
                 console.log()
-                printQuery(query)
+                printQueryAndBook(query)
             }).catch(handleUpdateError)
         } else {
             console.error('Query already present')
@@ -77,7 +85,7 @@ if (command === 'list') {
     validCommand = true
     console.log()
     for (const query of getQueries()) {
-        printQuery(query)
+        printQueryAndBook(query)
     }
 }
 
@@ -100,12 +108,19 @@ if (command === 'update') {
     const queriesToUpdate = numbers.length ?
         getQueries().filter(query => numbers.includes(getQueryNumber(query))) :
         getQueries()
-    Promise.all(queriesToUpdate.map(query => booksManager.update(query))).then(() => {
-        console.log()
+    console.log()
+    ;(async () => {
         for (const query of queriesToUpdate) {
-            printQuery(query)
+            try {
+                await booksManager.update(query)
+                printQueryAndBook(query)
+            } catch (error) {
+                printQuery(query)
+                handleUpdateError(error)
+                console.log()
+            }
         }
-    }).catch(handleUpdateError)
+    })()
 }
 
 if (command === 'read') {
