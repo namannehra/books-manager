@@ -31,9 +31,18 @@ const printQuery = query => {
 const handleUpdateError = error => {
     if (error.code === 'ENOTFOUND') {
         console.error('Incorrect domain or network error')
-    } else {
-        console.error(error.message)
+        return
     }
+    if (error instanceof BooksManager.NoDomainError) {
+        console.log(error.message)
+        return
+    }
+    if (error instanceof BooksManager.StatusCodeError || error instanceof BooksManager.ContentTypeError) {
+        console.error(error.message)
+        console.error('Check domain')
+        return
+    }
+    throw error
 }
 
 if (command === 'domain') {
