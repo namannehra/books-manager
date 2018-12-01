@@ -33,13 +33,15 @@ const handleUpdateError = error => {
         console.error('Incorrect domain or network error')
         return
     }
-    if (error instanceof BooksManager.NoDomainError) {
-        console.log(error.message)
-        return
-    }
-    if (error instanceof BooksManager.StatusCodeError || error instanceof BooksManager.ContentTypeError) {
+    if (error.statusCode === 404) {
         console.error(error.message)
         console.error('Check domain')
+        return
+    }
+    if (['NoDomain', 'StatusCode', 'ContentType'].some(
+        errorType => error instanceof BooksManager[errorType + 'Error']
+    )) {
+        console.error(error.message)
         return
     }
     throw error
