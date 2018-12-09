@@ -58,14 +58,16 @@ class BooksManager {
                 })
                 response.on('end', () => {
                     const latestBook = JSON.parse(data).result[0]
-                    const lastBook = this.queries[query]
-                    if (latestBook && (!lastBook || latestBook.id !== lastBook.id)) {
-                        this.config.push(`/queries/${query}`, {
-                            id: latestBook.id,
-                            /* Don't know if english title is always present */
-                            title: latestBook.title.english || latestBook.title.pretty,
-                            read: false,
-                        })
+                    if (latestBook) {
+                        /* Don't know if english title is always present */
+                        const title = latestBook.title.english || latestBook.title.pretty
+                        const lastBook = this.queries[query]
+                        if (!lastBook || title !== lastBook.title) {
+                            this.config.push(`/queries/${query}`, {
+                                title,
+                                read: false,
+                            })
+                        }
                     }
                     resolve()
                 })
