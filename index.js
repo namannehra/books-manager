@@ -59,7 +59,7 @@ if (command === 'domain') {
     if (domain) {
         booksManager.domain = domain
     } else {
-        console.log(booksManager.domain)
+        console.log(booksManager.domain || 'Domain not set')
     }
 }
 
