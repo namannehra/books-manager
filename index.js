@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 
+const cliTruncate = require('cli-truncate')
 const os = require('os')
 const path = require('path')
 const url = require('url')
@@ -25,7 +26,7 @@ const printQuery = query => {
 const printBook = query => {
     const queryValue = getQueryValue(query)
     if (queryValue) {
-        const book = queryValue.book.slice(0, process.stdout.columns - (queryValue.read ? 7 : 9))
+        const book = cliTruncate(queryValue.book, process.stdout.columns - (queryValue.read ? 7 : 9))
         process.stdout.write(`${queryValue.read ? 'READ' : '\x1b[7mUNREAD\x1b[0m'} - ${book}\n`)
     } else {
         console.log('No results')
