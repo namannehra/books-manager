@@ -4,17 +4,18 @@
 const os = require('os')
 const path = require('path')
 const url = require('url')
-const BooksManager = require('./BooksManager')
+
+const BooksManager = require('./src/BooksManager')
 
 const booksManager = new BooksManager(path.resolve(os.homedir(), 'books-manager'))
 
 const command = process.argv[2]
 let validCommand = false
 
-const getQueries = () => Object.keys(booksManager.queries)
-const getQuery = number => getQueries()[Number(number) - 1]
-const getQueryNumber = query => getQueries().indexOf(query) + 1
-const getBook = query => booksManager.queries[query]
+const getQueriesArray = () => Object.keys(booksManager.queries)
+const getQueryNumber = query => getQueriesArray().indexOf(query) + 1
+const getQueryFromNumber = number => getQueriesArray()[Number(number) - 1]
+const getQueryValue = query => booksManager.queries[query]
 
 const printQuery = query => {
     const link = url.parse(`https://${booksManager.domain}/search/?q=${query}`).href
@@ -22,9 +23,10 @@ const printQuery = query => {
 }
 
 const printBook = query => {
-    const book = getBook(query)
-    if (book) {
-        console.log(`${book.read ? 'READ' : 'UNREAD'} - ${book.title}`)
+    const queryValue = getQueryValue(query)
+    if (queryValue) {
+        const book = queryValue.book.slice(0, process.stdout.columns - (queryValue.read ? 7 : 9))
+        process.stdout.write(`${queryValue.read ? 'READ' : '\x1b[7mUNREAD\x1b[0m'} - ${book}\n`)
     } else {
         console.log('No results')
     }
@@ -38,17 +40,14 @@ const printQueryAndBook = query => {
 
 const handleUpdateError = (query, error) => {
     printQuery(query)
-    if (error.code === 'ENOTFOUND') {
+    if (error.code === 'ERR_INVALID_DOMAIN_NAME') {
+        console.error('Invalid domain')
+    } else if (error.code === 'EAI_AGAIN' || error.code === 'ENOTFOUND') {
         console.error('Incorrect domain or network error')
-    } else if (error.statusCode === 404) {
-        console.error(error.message)
-        console.error('Check domain')
-    } else if (['NoDomain', 'StatusCode', 'ContentType'].some(
-        errorType => error instanceof BooksManager[errorType + 'Error']
-    )) {
+    } else if (error instanceof BooksManager.NoDomainError || error instanceof BooksManager.StatusCodeError) {
         console.error(error.message)
     } else {
-        console.error(error)
+        throw error
     }
     console.log()
 }
@@ -64,28 +63,31 @@ if (command === 'domain') {
 }
 
 if (command === 'add') {
-    const query = process.argv[3]
+    const query = process.argv[3].toLowerCase()
     if (query) {
         validCommand = true
-        console.log()
-        if (getBook(query) === undefined) {
+        try {
             booksManager.add(query)
-            booksManager.update(query).then(() => {
-                printQueryAndBook(query)
-            }).catch(error => {
-                handleUpdateError(query, error)
-            })
-        } else {
-            console.error('Query already present')
-            console.log()
+        } catch (error) {
+            if (error instanceof BooksManager.QueryAlreadyPresentError) {
+                console.error(error.message)
+                return
+            }
+            throw error
         }
+        console.log()
+        booksManager.update(query).then(() => {
+            printQueryAndBook(query)
+        }).catch(error => {
+            handleUpdateError(query, error)
+        })
     }
 }
 
 if (command === 'list') {
     validCommand = true
     console.log()
-    for (const query of getQueries()) {
+    for (const query of getQueriesArray()) {
         printQueryAndBook(query)
     }
 }
@@ -94,8 +96,8 @@ if (command === 'remove') {
     const number = process.argv[3]
     if (number) {
         validCommand = true
-        const query = getQuery(number)
-        if (getBook(query) === undefined) {
+        const query = getQueryFromNumber(number)
+        if (getQueryValue(query) === undefined) {
             console.error('No query at number ' + number)
         } else {
             booksManager.remove(query)
@@ -107,8 +109,8 @@ if (command === 'update') {
     validCommand = true
     const numbers = process.argv.slice(3).map(number => Number(number))
     const queriesToUpdate = numbers.length ?
-        getQueries().filter(query => numbers.includes(getQueryNumber(query))) :
-        getQueries()
+        getQueriesArray().filter(query => numbers.includes(getQueryNumber(query))) :
+        getQueriesArray()
     ;(async () => {
         console.log()
         for (const query of queriesToUpdate) {
@@ -126,8 +128,8 @@ if (command === 'read') {
     validCommand = true
     const numbers = process.argv.slice(3).map(number => Number(number))
     const queriesToMark = numbers.length ?
-        getQueries().filter(query => numbers.includes(getQueryNumber(query))) :
-        getQueries()
+        getQueriesArray().filter(query => numbers.includes(getQueryNumber(query))) :
+        getQueriesArray()
     for (const query of queriesToMark) {
         booksManager.read(query)
     }

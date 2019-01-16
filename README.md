@@ -11,6 +11,9 @@ yarn global add https://github.com/namannehra/books-manager
 yarn global upgrade books-manager
 ```
 
+**Warning:** Always backup the database file before updating. Newer versions may
+not work with old database.
+
 ## Commands
 
 ### `domain`
