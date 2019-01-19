@@ -14,6 +14,7 @@ const getBooks = url => new Promise((resolve, reject) => {
         const books = []
         let lastHref
         let isName = false
+        let name = ''
         const parser = new htmlParser.Parser({
             onattribute(name, value) {
                 if (name === 'href') {
@@ -24,16 +25,22 @@ const getBooks = url => new Promise((resolve, reject) => {
             },
             ontext(text) {
                 if (isName) {
-                    isName = false
+                    name += text
+                }
+            },
+            onclosetag() {
+                if (isName) {
                     books.push({
                         id: lastHref.slice(3, -1),
-                        name: text,
+                        name,
                     })
+                    isName = false
+                    name = ''
                 }
             },
             onend() {
                 resolve(books)
-            }
+            },
         }, {
             lowerCaseTags: false,
         })
