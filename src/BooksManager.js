@@ -56,8 +56,9 @@ class BooksManager {
             throw new NoDomainError()
         }
         const unreadBooks = []
+        const lastBookRead = this.queries[query].lastBookRead
         for (const book of await getBooks(`https://${this.domain}/search/?q=${query}`)) {
-            if (this.queries[query].lastBookRead && book.id === this.queries[query].lastBookRead.id) {
+            if (lastBookRead && book.id === lastBookRead.id) {
                 break
             }
             unreadBooks.push(book)
@@ -65,6 +66,7 @@ class BooksManager {
         this.config.push('/queries/' + query, {
             unreadCount: unreadBooks.length,
             unreadBooks: unreadBooks.slice(0, this.booksToShow),
+            lastBookRead,
         })
     }
 
@@ -75,7 +77,7 @@ class BooksManager {
         this.config.push('/queries/' + query, {
             unreadCount: 0,
             unreadBooks: [],
-            lastBookRead: this.queries[query].unreadBooks[0] || null,
+            lastBookRead: this.queries[query].unreadBooks[0] || this.queries[query].lastBookRead,
         })
     }
 
