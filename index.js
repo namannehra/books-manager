@@ -7,6 +7,8 @@ const path = require('path')
 const url = require('url')
 
 const BooksManager = require('./src/BooksManager')
+const parseQuery = require('./src/parseQuery')
+const printInverse = require('./src/printInverse')
 
 const booksManager = new BooksManager(path.resolve(os.homedir(), 'books-manager'))
 
@@ -15,27 +17,29 @@ let validCommand = false
 
 const getQueriesArray = () => Object.keys(booksManager.queries)
 const getQueryNumber = query => getQueriesArray().indexOf(query) + 1
-const getQueryFromNumber = number => getQueriesArray()[Number(number) - 1]
-const getQueryValue = query => booksManager.queries[query]
+const getQueryFromNumber = number => getQueriesArray()[number - 1]
 
 const printQuery = query => {
-    const link = url.parse(`https://${booksManager.domain}/search/?q=${query}`).href
-    console.log(`${getQueryNumber(query).toString().padStart(2)}. ${query} - ${link}`)
-}
-
-const printBook = query => {
-    const queryValue = getQueryValue(query)
-    if (queryValue) {
-        const book = cliTruncate(queryValue.book, process.stdout.columns - (queryValue.read ? 7 : 9))
-        process.stdout.write(`${queryValue.read ? 'READ' : '\x1b[7mUNREAD\x1b[0m'} - ${book}\n`)
-    } else {
-        console.log('No results')
+    const {href} = url.parse(`https://${booksManager.domain}/search/?q=${query}`)
+    process.stdout.write(`${getQueryNumber(query).toString().padStart(2)}. ${query} - ${href}`)
+    const {unreadCount} = booksManager.queries[query]
+    if (unreadCount) {
+        process.stdout.write(' ')
+        printInverse(unreadCount === 25 ? '25+' : unreadCount)
     }
+    process.stdout.write('\n')
 }
 
-const printQueryAndBook = query => {
+const printQueryAndUnreadBooks = query => {
     printQuery(query)
-    printBook(query)
+    const {unreadCount, unreadBooks} = booksManager.queries[query]
+    if (unreadCount === unreadBooks.length) {
+        for (const book of unreadBooks) {
+            const href = `https://${booksManager.domain}/g/${book.id}/`
+            const name = cliTruncate(book.name, process.stdout.columns - href.length - 6)
+            console.log(' | ' + name + ' - ' + href)
+        }
+    }
     console.log()
 }
 
@@ -63,8 +67,18 @@ if (command === 'domain') {
     }
 }
 
+if (command === 'show-books') {
+    validCommand = true
+    const booksToShow = Number(process.argv[3])
+    if (booksToShow) {
+        booksManager.booksToShow = booksToShow
+    } else {
+        console.log(booksManager.booksToShow)
+    }
+}
+
 if (command === 'add') {
-    const query = process.argv[3].toLowerCase()
+    const query = parseQuery(process.argv.slice(3))
     if (query) {
         validCommand = true
         try {
@@ -78,7 +92,7 @@ if (command === 'add') {
         }
         console.log()
         booksManager.update(query).then(() => {
-            printQueryAndBook(query)
+            printQueryAndUnreadBooks(query)
         }).catch(error => {
             handleUpdateError(query, error)
         })
@@ -89,19 +103,23 @@ if (command === 'list') {
     validCommand = true
     console.log()
     for (const query of getQueriesArray()) {
-        printQueryAndBook(query)
+        printQueryAndUnreadBooks(query)
     }
 }
 
 if (command === 'remove') {
-    const number = process.argv[3]
+    const number = Number(process.argv[3])
     if (number) {
         validCommand = true
         const query = getQueryFromNumber(number)
-        if (getQueryValue(query) === undefined) {
-            console.error('No query at number ' + number)
-        } else {
+        try {
             booksManager.remove(query)
+        } catch (error) {
+            if (error instanceof BooksManager.QueryDoesNotExistError) {
+                console.error(error.message)
+                return
+            }
+            throw error
         }
     }
 }
@@ -117,7 +135,7 @@ if (command === 'update') {
         for (const query of queriesToUpdate) {
             try {
                 await booksManager.update(query)
-                printQueryAndBook(query)
+                printQueryAndUnreadBooks(query)
             } catch (error) {
                 handleUpdateError(query, error)
             }

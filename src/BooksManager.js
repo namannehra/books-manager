@@ -2,7 +2,7 @@
 
 const JsonDb = require('node-json-db')
 
-const getLatestBook = require('./getLatestBook')
+const getBooks = require('./getBooks')
 
 class BooksManager {
 
@@ -11,64 +11,72 @@ class BooksManager {
     }
 
     get domain() {
-        if (this.config.exists('/domain')) {
-            return this.config.getData('/domain')
-        }
-        return ''
+        return this.config.exists('/domain') ? this.config.getData('/domain') : ''
     }
 
     set domain(domain) {
         this.config.push('/domain', domain)
     }
 
+    get booksToShow() {
+        return this.config.exists('/booksToShow') ? this.config.getData('/booksToShow') : 3
+    }
+
+    set booksToShow(booksToShow) {
+        this.config.push('/booksToShow', booksToShow)
+    }
+
     get queries() {
-        if (this.config.exists('/queries')) {
-            return this.config.getData('/queries')
-        }
-        return {}
+        return this.config.exists('/queries') ? this.config.getData('/queries') : {}
     }
 
     add(query) {
-        query = query.toLowerCase()
-        if (this.queries[query] !== undefined) {
+        if (this.config.exists('/queries/' + query)) {
             throw new QueryAlreadyPresentError(query)
         }
-        this.config.push(`/queries/${query}`, null)
+        this.config.push('/queries/' + query, {
+            unreadCount: 0,
+            unreadBooks: [],
+            lastBookRead: null,
+        })
     }
 
     remove(query) {
-        if (this.queries[query] === undefined) {
+        if (!this.config.exists('/queries/' + query)) {
             throw new QueryDoesNotExistError(query)
         }
-        this.config.delete(`/queries/${query}`)
+        this.config.delete('/queries/' + query)
     }
 
-    update(query) {
-        if (this.queries[query] === undefined) {
+    async update(query) {
+        if (!this.config.exists('/queries/' + query)) {
             throw new QueryDoesNotExistError(query)
         }
         if (!this.domain) {
-            return Promise.reject(new NoDomainError())
+            throw new NoDomainError()
         }
-        return getLatestBook(`https://${this.domain}/search/?q=${query}`).then(book => {
-            if (!book) {
-                return
+        const unreadBooks = []
+        for (const book of await getBooks(`https://${this.domain}/search/?q=${query}`)) {
+            if (this.queries[query].lastBookRead && book.id === this.queries[query].lastBookRead.id) {
+                break
             }
-            const lastBook = this.queries[query] && this.queries[query].book
-            if (book !== lastBook) {
-                this.config.push(`/queries/${query}`, {
-                    book,
-                    read: false,
-                })
-            }
+            unreadBooks.push(book)
+        }
+        this.config.push('/queries/' + query, {
+            unreadCount: unreadBooks.length,
+            unreadBooks: unreadBooks.slice(0, this.booksToShow),
         })
     }
 
     read(query) {
-        if (!this.queries[query]) {
+        if (!this.config.exists('/queries/' + query)) {
             throw new QueryDoesNotExistError()
         }
-        this.config.push(`/queries/${query}/read`, true)
+        this.config.push('/queries/' + query, {
+            unreadCount: 0,
+            unreadBooks: [],
+            lastBookRead: this.queries[query].unreadBooks[0] || null,
+        })
     }
 
 }
@@ -102,6 +110,6 @@ class NoDomainError extends Error {
 BooksManager.QueryAlreadyPresentError = QueryAlreadyPresentError
 BooksManager.QueryDoesNotExistError = QueryDoesNotExistError
 BooksManager.NoDomainError = NoDomainError
-BooksManager.StatusCodeError = getLatestBook.StatusCodeError
+BooksManager.StatusCodeError = getBooks.StatusCodeError
 
 module.exports = BooksManager

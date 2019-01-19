@@ -1,5 +1,5 @@
 # books-manager
-A Node app to check for new books based on search queries
+Node app to check for new books based on search queries
 
 ## Install
 ```
@@ -12,7 +12,9 @@ yarn global upgrade books-manager
 ```
 
 **Warning:** Always backup the database file before updating. Newer versions may
-not work with old database.
+not be compatible with old database.
+
+If app stops working after update the try deleting the database file.
 
 ## Commands
 
@@ -25,11 +27,21 @@ $ books-manager domain
 google.com
 ```
 
+### `show-books`
+Get or set the maximum number of unread books to show. If number of unread books
+is less or equal then name and link of each unread books will also be shown.
+Otherwise only link to query page will be shown. Default: `3`.
+
 ### `add`
 Add search query. Same as *books website*'s search.
 ```
 $ books-manager add tag:glasses
-$ books-manager add 'tag:"story arc" parody:"street fighter"'
+```
+
+Terms can be grouped using underscore. The following will add
+`tag:"story arc" parody:"street fighter"`
+```
+$ books-manager add tag:story_arc parody:street_fighter
 ```
 
 ### `list`
