@@ -80,8 +80,7 @@ Output is displayed in following format.
  | <unread-book-2-name> - <unread-book-2-link>
 ```
 - `<unread-count>` is not shown if it's zero.
-- Unread books are not shown if number of unread books is greater then
-  `show-books`.
+- Unread books are not shown if `<unread-count>` is greater then `show-books`.
 
 
 ## Database file
