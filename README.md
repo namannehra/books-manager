@@ -28,9 +28,9 @@ google.com
 ```
 
 ### `show-books`
-Get or set the maximum number of unread books to show. If number of unread books
-is less or equal then name and link of each unread books will also be shown.
-Otherwise only link to query page will be shown. Default: `3`.
+Get or set the maximum number of unread books to show. Name and link of each
+unread books will only be shown in output if number of unread books is less or
+equal to `show-books`. Default: `3`.
 
 ### `add`
 Add search query. Same as *books website*'s search.
@@ -39,7 +39,7 @@ $ books-manager add tag:glasses
 ```
 
 Terms can be grouped using underscore. The following will add
-`tag:"story arc" parody:"street fighter"`
+`tag:"story arc" parody:"street fighter"`.
 ```
 $ books-manager add tag:story_arc parody:street_fighter
 ```
@@ -70,6 +70,19 @@ then last books of all queries are marked read.
 $ books-manager read 1 2 3
 $ books-manager read
 ```
+
+## Output
+Output is displayed in following format.
+```
+<query-number>. <query-name> - <query-link> <unread-count>
+ | <unread-book-1-name> - <unread-book-1-link>
+ | <unread-book-2-name> - <unread-book-2-link>
+ | <unread-book-2-name> - <unread-book-2-link>
+```
+- `<unread-count>` is not shown if it's zero.
+- Unread books are not shown if number of unread books is greater then
+  `show-books`.
+
 
 ## Database file
 Data is stored in `books-manager.json` at user's home directory.
