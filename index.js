@@ -67,16 +67,6 @@ if (command === 'domain') {
     }
 }
 
-if (command === 'show-books') {
-    validCommand = true
-    const booksToShow = Number(process.argv[3])
-    if (booksToShow) {
-        booksManager.booksToShow = booksToShow
-    } else {
-        console.log(booksManager.booksToShow)
-    }
-}
-
 if (command === 'add') {
     const query = parseQuery(process.argv.slice(3))
     if (query) {

@@ -18,14 +18,6 @@ class BooksManager {
         this.config.push('/domain', domain)
     }
 
-    get booksToShow() {
-        return this.config.exists('/booksToShow') ? this.config.getData('/booksToShow') : 3
-    }
-
-    set booksToShow(booksToShow) {
-        this.config.push('/booksToShow', booksToShow)
-    }
-
     get queries() {
         return this.config.exists('/queries') ? this.config.getData('/queries') : {}
     }
@@ -65,7 +57,7 @@ class BooksManager {
         }
         this.config.push('/queries/' + query, {
             unreadCount: unreadBooks.length,
-            unreadBooks: unreadBooks.slice(0, this.booksToShow),
+            unreadBooks: unreadBooks.slice(0, 3),
             lastBookRead,
         })
     }

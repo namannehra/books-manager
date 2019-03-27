@@ -27,11 +27,6 @@ $ books-manager domain
 google.com
 ```
 
-### `show-books`
-Get or set the maximum number of unread books to show. Name and link of each
-unread books will only be shown in output if number of unread books is less or
-equal to `show-books`. Default: `3`.
-
 ### `add`
 Add search query. Same as *books website*'s search.
 ```
@@ -80,7 +75,7 @@ Output is displayed in following format.
  | <unread-book-2-name> - <unread-book-2-link>
 ```
 - `<unread-count>` is not shown if it's zero.
-- Unread books are not shown if `<unread-count>` is greater then `show-books`.
+- Unread books are not shown if `<unread-count>` is greater than 3.
 
 
 ## Database file
