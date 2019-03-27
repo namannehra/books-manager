@@ -78,7 +78,7 @@ class BooksManager {
 class QueryAlreadyPresentError extends Error {
 
     constructor(query) {
-        super(`Query already present. query: ${query}.`)
+        super(`Query already present. Query: ${query}.`)
         this.query = query
     }
 
@@ -87,7 +87,7 @@ class QueryAlreadyPresentError extends Error {
 class QueryDoesNotExistError extends Error {
 
     constructor(query) {
-        super(`Query does not exist. query: ${query}.`)
+        super(`Query does not exist. Query: ${query}.`)
         this.query = query
     }
 

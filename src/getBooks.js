@@ -51,7 +51,7 @@ const getBooks = url => new Promise((resolve, reject) => {
 class StatusCodeError extends Error {
 
     constructor(statusCode) {
-        super(`Wrong status code. Expected 200. Found: ${statusCode}.`)
+        super(`Wrong status code. Expected 200. Found ${statusCode}.`)
         this.statusCode = statusCode
     }
 
