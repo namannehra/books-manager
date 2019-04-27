@@ -1,10 +1,18 @@
 {
     "name": "books-manager",
     "version": "0.0.0",
-    "bin": "index.js",
+    "bin": "build/bin.js",
+    "scripts": {
+        "build": "tsc",
+        "install": "tsc"
+    },
     "dependencies": {
         "cli-truncate": "^1.1.0",
-        "htmlparser2": "^3.10.1",
-        "node-json-db": "^0.11.0"
+        "immutable": "^4.0.0-rc.12",
+        "typescript": "^3.4.5"
+    },
+    "devDependencies": {
+        "@types/cli-truncate": "^1.1.0",
+        "@types/node": "^11.13.7"
     }
 }

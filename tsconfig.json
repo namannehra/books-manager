@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "build": true,
+        "esModuleInterop": true,
+        "lib": ["es2018"],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "build",
+        "sourceMap": true,
+        "strict": true,
+        "target": "es2018"
+    }
+}
