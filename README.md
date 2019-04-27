@@ -12,9 +12,8 @@ yarn global upgrade books-manager
 ```
 
 **Warning:** Always backup the database file before updating. New versions may
-not be compatible with old database.
-
-If app stops working after update then try deleting the database file.
+not be compatible with old database. If app stops working after update then try
+deleting the database file.
 
 ## Commands
 
@@ -27,16 +26,18 @@ $ books-manager domain
 google.com
 ```
 
-### `add <query>`
-Add entry. Options:
-- `-a`: artists
-- `-c`: characters
-- `-g`: groups
-- `-l`: languages
-- `-p`: parodies
-- `-t`: tags
+### `add`
+Add entry.
+| Option | Query parameter |
+|--------|-----------------|
+| `-a`   | artists         |
+| `-c`   | characters      |
+| `-g`   | groups          |
+| `-l`   | languages       |
+| `-p`   | parodies        |
+| `-t`   | tags            |
 ```
-$ books-manager add -t glasses -l english
+$ books-manager add -t "story arc" military -l english
 ```
 
 ### `list`
@@ -59,8 +60,8 @@ $ books-manager update
 ```
 
 ### `read [<number1> <number2> ...]`
-Mark the last books of search entry as read. If used without numbers then last
-mark books of all queries as read.
+Mark the last books of search entry as read. If used without numbers then mark
+last books of all queries as read.
 ```
 $ books-manager read 1 2 3
 $ books-manager read
