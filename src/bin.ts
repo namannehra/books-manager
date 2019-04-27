@@ -115,7 +115,7 @@ if (command === 'remove') {
             booksManager.remove(number - 1)
         } catch (error) {
             if (error instanceof NoEntryAtIndexError) {
-                console.error(error)
+                console.error(error.message)
             } else {
                 throw error
             }
@@ -132,7 +132,7 @@ if (command === 'update') {
         printEntryAndBooks(index + 1, entry)
     }, (index, error) => {
         if (error instanceof NoEntryAtIndexError) {
-            console.error(error)
+            console.error(error.message)
         } else {
             handleUpdateError(index, entries[index], error)
         }
@@ -149,7 +149,7 @@ if (command === 'read') {
             booksManager.read(index)
         } catch (error) {
             if (error instanceof NoEntryAtIndexError) {
-                console.error(error)
+                console.error(error.message)
             } else {
                 throw error
             }
