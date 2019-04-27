@@ -93,9 +93,7 @@ export const queryToQueryString = (query: QueryType) => {
     } = {}
     for (const [parameter, terms] of query) {
         if (terms.size) {
-            queryStringData[parametersSingular[parameter]] = terms.toArray().map(
-                term => /[ -.]/.test(term) ? `"${term}"` : term
-            )
+            queryStringData[parametersSingular[parameter]] = terms.toArray().map(term => `"${term}"`)
         }
     }
     return querystring.stringify(queryStringData, '+', ':')
