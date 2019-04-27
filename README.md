@@ -28,6 +28,7 @@ google.com
 
 ### `add`
 Add entry.
+
 | Option | Query parameter |
 |--------|-----------------|
 | `-a`   | artists         |
