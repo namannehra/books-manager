@@ -86,6 +86,7 @@ if (command === 'add') {
     try {
         query = new ValidQuery(argsToQuery(process.argv.slice(3)))
         const [index, entry] = booksManager.add(query)
+        console.log()
         booksManager.update([index], (index, entry) => {
             printEntryAndBooks(index + 1, entry)
         }, (index, error) => {
@@ -128,6 +129,7 @@ if (command === 'update') {
     const numberArgs = process.argv.slice(3)
     const entries = booksManager.getEntries()
     const indexes = numberArgs.length ? numberArgs.map(number => Number(number) - 1) : entries.map((_, index) => index)
+    console.log()
     taskQueue(booksManager.update.bind(booksManager), indexes, (index, entry) => {
         printEntryAndBooks(index + 1, entry)
     }, (index, error) => {
