@@ -98,10 +98,10 @@ if (command === 'add') {
         )) {
             console.error(error.message)
         } else if (error instanceof QueryAlreadyPresentError) {
+            console.log('Query already present.')
             const entries = booksManager.getEntries()
             const index = entries.findIndex(entry => entry.query.equals(query))
             printEntry(index + 1, entries[index])
-            console.log(error.message)
         } else {
             throw error
         }
