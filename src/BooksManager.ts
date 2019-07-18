@@ -62,7 +62,7 @@ export class BooksManager {
         callback?: (index: number, entry: EntryType) => void,
         errorCallback?: (index: number, error: Error) => void
     ) {
-        const pending = new Set()
+        const pending: Set<Promise<void>> = new Set()
         let next = () => {}
         for (const index of indexes) {
             if (pending.size === maxParalledRequests) {

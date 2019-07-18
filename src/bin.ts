@@ -60,6 +60,7 @@ const handleUpdateError = (number: number, entry: EntryType, error: Error) => {
     } else {
         throw error
     }
+    console.log()
 }
 
 if (command === 'domain') {
@@ -135,8 +136,9 @@ if (command === 'update') {
     }, (index, error) => {
         if (error instanceof NoEntryAtIndexError) {
             console.error(error.message)
+            console.log()
         } else {
-            handleUpdateError(index, entries[index], error)
+            handleUpdateError(index + 1, entries[index], error)
         }
     })
 }
