@@ -1,0 +1,7 @@
+{
+    "imports": {
+        "@root/": "./src/",
+        "@externals/": "./src/externals/",
+        "@libs/": "./src/libs/"
+    }
+}

@@ -1,0 +1,1 @@
+import '@root/cli.ts'

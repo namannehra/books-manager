@@ -1,0 +1,7 @@
+{
+    "private": true,
+    "dependencies": {
+        "typescript": "^3.9.3",
+        "typescript-deno-plugin": "^1.31.0"
+    }
+}
