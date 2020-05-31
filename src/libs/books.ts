@@ -1,9 +1,9 @@
 import { NetworkError, WrongStatusError } from '@libs/network-errors.ts'
 
-export type Book = Readonly<{
+export interface Book extends Readonly<{
     id: string
     name: string
-}>
+}> {}
 
 interface BooksResponse {
     result: {

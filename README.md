@@ -4,12 +4,12 @@ Deno script to check for new books
 
 ## Install
 
-1. Install [Deno](https://deno.land/)
+1. Install [Deno](https://deno.land)
 
 2. Create alias `books-manager` for:
 
     ```
-    deno run --unstable --importmap=https://raw.githubusercontent.com/namannehra/books-manager/master/import-map.json https://raw.githubusercontent.com/namannehra/books-manager/master/cli.ts
+    deno run --unstable --allow-all --importmap=https://raw.githubusercontent.com/namannehra/books-manager/master/import-map.json https://raw.githubusercontent.com/namannehra/books-manager/master/cli.ts
     ```
 
 ## Database location
@@ -24,7 +24,7 @@ not be compatible with the old database. If books-manager stops working after
 update then you may have to delete the database file.
 
 ```
-deno run --reload --unstable --importmap=https://raw.githubusercontent.com/namannehra/books-manager/master/import-map.json https://raw.githubusercontent.com/namannehra/books-manager/master/cli.ts
+deno cache --unstable --reload --importmap=https://raw.githubusercontent.com/namannehra/books-manager/master/import-map.json https://raw.githubusercontent.com/namannehra/books-manager/master/cli.ts
 ```
 
 ## Commands

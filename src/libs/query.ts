@@ -1,4 +1,4 @@
-export enum QueryKeys {
+export enum QueryKey {
     artists = 'artists',
     characters = 'characters',
     groups = 'groups',
@@ -10,28 +10,22 @@ export enum QueryKeys {
 /**
  * Sorted
  */
-export const queryKeys = Object.values(QueryKeys).sort()
+export const queryKeys = Object.values(QueryKey).sort()
 
-export type Query = Readonly<{
-    [key in QueryKeys]?: readonly string[]
-}>
+export type Query = ReadonlyMap<QueryKey, readonly string[]>
 
 const validSymbol = Symbol('valid')
-
-type MutableValidQuery = {
-    [validSymbol]: true
-} & {
-    [key in QueryKeys]: readonly string[]
-}
 
 /**
  * Not empty.
  * Keys and values sorted.
  * No duplicate values.
+ * No empty values.
  */
-export type ValidQuery = Readonly<MutableValidQuery>
-
-export const isValidQuery = (query: Query): query is ValidQuery => validSymbol in query
+export interface ValidQuery extends Readonly<{
+    [validSymbol]: true
+    query: Query
+}> {}
 
 export class QueryEmptyError extends Error {
     constructor(public readonly query: Query) {
@@ -40,51 +34,47 @@ export class QueryEmptyError extends Error {
 }
 
 export const getValidQuery = (query: Query): ValidQuery => {
-    if (isValidQuery(query)) {
-        return query
+    let empty = true
+    for (const values of query.values()) {
+        if (values.length) {
+            empty = false
+            break
+        }
     }
-    const empty = queryKeys.every(key => {
-        const values = query[key]
-        return !values || !values.length
-    })
     if (empty) {
         throw new QueryEmptyError(query)
     }
-    const validQuery: Partial<MutableValidQuery> = {
-        [validSymbol]: true
-    }
+    const newQuery = new Map<QueryKey, readonly string[]>()
     for (const queryKey of queryKeys) {
-        let values = query[queryKey]
-        if (values) {
-            values = Array.from(new Set(values)).sort()
-        } else {
-            values = []
+        let values = query.get(queryKey)
+        if (values?.length) {
+            newQuery.set(queryKey, Array.from(new Set(values)).sort())
         }
-        validQuery[queryKey] = values
     }
-    return validQuery as ValidQuery
+    const validQuery: ValidQuery = {
+        [validSymbol]: true,
+        query,
+    }
+    return validQuery
 }
 
-export const queryToString = (query: ValidQuery) => {
+export const unsafeCastAsValidQuery = (query: Query): ValidQuery => ({
+    [validSymbol]: true,
+    query,
+})
+
+export const queryToString = (validQuery: ValidQuery) => {
     const parts = []
-    for (const key of queryKeys) {
-        const values = query[key]
-        if (!values.length) {
-            continue
-        }
+    for (const [key, values] of validQuery.query.entries()) {
         const part = `${key}: ${values.join(', ')}`
         parts.push(part)
     }
     return parts.join('; ')
 }
 
-export const queryToQueryString = (query: ValidQuery) => {
+export const queryToQueryString = (validQuery: ValidQuery) => {
     const parts = []
-    for (const key of queryKeys) {
-        const values = query[key]
-        if (!values.length) {
-            continue
-        }
+    for (const [key, values] of validQuery.query.entries()) {
         const part = values.map(value => `${key}:"${value.split(' ').join('+')}"`).join('+')
         parts.push(part)
     }

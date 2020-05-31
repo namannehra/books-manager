@@ -1,7 +1,8 @@
 {
     "imports": {
         "@root/": "./src/",
-        "@externals/": "./src/externals/",
-        "@libs/": "./src/libs/"
+        "@data/": "./src/data/",
+        "@libs/": "./src/libs/",
+        "@utils/": "./src/utils/"
     }
 }
