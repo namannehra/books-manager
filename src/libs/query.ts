@@ -53,7 +53,7 @@ export const getValidQuery = (query: Query): ValidQuery => {
     }
     const validQuery: ValidQuery = {
         [validSymbol]: true,
-        query,
+        query: newQuery,
     }
     return validQuery
 }
