@@ -75,8 +75,11 @@ export const queryToString = (validQuery: ValidQuery) => {
 export const queryToQueryString = (validQuery: ValidQuery) => {
     const parts = []
     for (const [key, values] of validQuery.query.entries()) {
-        const part = values.map(value => `${key}:"${value.split(' ').join('+')}"`).join('+')
-        parts.push(part)
+        for (const value of values) {
+            const part = `${key}:"${value}"`
+            parts.push(part)
+        }
     }
-    return parts.join('+')
+    const queryString = escape(parts.join(' '))
+    return queryString
 }
